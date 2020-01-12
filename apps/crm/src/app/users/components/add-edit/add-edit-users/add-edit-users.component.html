@@ -1,0 +1,38 @@
+<form [formGroup]="userForm">
+
+  <div class="ui-g">
+    <label for="username" class="ui-g-3 required">User name</label>
+    <input
+      pInputText
+      id="username"
+      name="username"
+      formControlName="username"
+      class="ui-g-9"
+    />
+  </div>
+  <div class="ui-g">
+    <label for="password" class="ui-g-3 required">Password</label>
+    <input
+      pInputText
+      id="password"
+      name="password"
+      formControlName="password"
+      class="ui-g-9"
+    />
+  </div>
+
+
+  <p-toolbar>
+
+    <div class="ui-toolbar-group-left">
+      <button pButton (click)="goBackToList()" label="Go back"></button>
+    </div>
+
+    <div class="ui-toolbar-group-right">
+      <button pButton (click)="saveUser()" label="Save" [disabled]="userForm?.invalid"></button>
+    </div>
+  </p-toolbar>
+
+  <p-toast position="top-right"></p-toast>
+
+</form>

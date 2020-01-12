@@ -19,6 +19,10 @@ const routes: Route[] = [
     loadChildren: () => import('./customers/customers.module').then(m => m.CustomersModule)
   },
   {
+    path: 'users',
+    loadChildren: () => import('./users/users.module').then(m => m.UsersModule)
+  },
+  {
     path: '**',
     redirectTo: 'customers'
   }

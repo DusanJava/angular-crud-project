@@ -2,22 +2,19 @@ import { Location } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Customer, CustomerStatus, CustomerType, IdentityType } from '@web-starter-kit/api-interfaces';
+import {Country, Customer, CustomerStatus, CustomerType, IdentityType} from '@web-starter-kit/api-interfaces';
 import { CustomerService } from '../../services/customer.service';
 import { MessageService } from 'primeng/api';
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'crm-example-add-customer',
   templateUrl: './add-edit-customer.component.html',
   styleUrls: ['./add-edit-customer.component.scss']
 })
-export class AddEditCustomerComponent implements OnInit, OnChanges {
+export class AddEditCustomerComponent implements OnInit {
 
-  @Input() customer: Customer;
-  @Input() countries: Array<any>;
-
-  @Output() goBack: EventEmitter<void> = new EventEmitter<void>();
-  @Output() save: EventEmitter<Customer> = new EventEmitter<Customer>();
+  countries$: Observable<Array<Country>>;
 
   customerForm: FormGroup;
 
@@ -43,6 +40,8 @@ export class AddEditCustomerComponent implements OnInit, OnChanges {
     this.customerStatuses = Object.keys(CustomerStatus)
       .map(key => ({label: CustomerStatus[key], value: key}));
 
+    this.countries$ = this.customerService.getAllCountries();
+
     this.activeRoute.params
       .subscribe(
         (params: Params) => {
@@ -52,26 +51,6 @@ export class AddEditCustomerComponent implements OnInit, OnChanges {
         });
 
     this.createForm();
-  }
-
-  ngOnChanges(): void {
-
-    let formCustomer = {} as Customer;
-
-    if (this.customer && this.countries) {
-      formCustomer = {
-        ...this.customer,
-        customerType: this.customer.customerType && Object.keys(CustomerType).find(key => this.customer.customerType === CustomerType[key]),
-        identityType: this.customer.identityType && Object.keys(IdentityType).find(key => this.customer.identityType === IdentityType[key]),
-        status: this.customer.status && Object.keys(CustomerStatus).find(key => this.customer.status === CustomerStatus[key]),
-        registrationDate: this.customer.registrationDate && new Date(this.customer.registrationDate),
-        country: this.customer.country && this.countries.find(c => c.name === this.customer.country)
-      } as Customer;
-    }
-
-    if (this.customerForm) {
-      this.customerForm.patchValue(formCustomer);
-    }
   }
 
   saveCustomer(): void {
@@ -84,9 +63,15 @@ export class AddEditCustomerComponent implements OnInit, OnChanges {
       });
       return;
     }
-
-    this.save.emit(this.customerForm.value);
-    this.customerForm.reset();
+    const formValue = this.customerForm.value;
+    this.customerService.saveCustomer(formValue)
+      .subscribe(
+        res => {
+          this.customerForm.reset();
+          this.goBackToList();
+        },
+        err => console.log(err)
+      );
   }
 
   goBackToList(): void {

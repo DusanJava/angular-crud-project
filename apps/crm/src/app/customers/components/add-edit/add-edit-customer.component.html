@@ -46,7 +46,7 @@
     <label for="country" class="ui-g-3">Country</label>
     <p-dropdown
         id="country"
-        [options]="countries"
+        [options]="countries$ | async"
         name="country"
         formControlName="country"
         optionLabel="name"
